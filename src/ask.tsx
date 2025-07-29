@@ -33,17 +33,16 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Ask }>
   async function insertQuestion(uuid: string, question: string) {
     const questionsString = await LocalStorage.getItem<string>("question-uuids");
     const questions: { uuid: string; question: string }[] = questionsString ? JSON.parse(questionsString) : [];
-    questions.push({ uuid, question });
+    questions.unshift({ uuid, question });
     await LocalStorage.setItem("question-uuids", JSON.stringify(questions));
   }
 
   async function askQuestion() {
     try {
       const uuid = uuidv4();
-      const insertedQuestion = insertQuestion(uuid, question);
       controller.current = new AbortController();
       const signal = controller.current.signal;
-      const request = fetch(`https://getunblocked.com/api/v1/answers/${uuid}`, {
+      await fetch(`https://getunblocked.com/api/v1/answers/${uuid}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +51,7 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Ask }>
         signal,
         body: JSON.stringify({ question }),
       });
-      await Promise.all([insertedQuestion, request]);
+      await insertQuestion(uuid, question);
       return uuid;
     } catch (error) {
       if (!(error instanceof Error) || (error instanceof Error && error.name !== "AbortError")) {

@@ -1,4 +1,4 @@
-import { List, Icon, getPreferenceValues, LocalStorage } from "@raycast/api";
+import { List, Icon, getPreferenceValues, LocalStorage, ActionPanel, Action } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import type { UnblockedAnswerResponse } from "./ask";
 
@@ -80,6 +80,13 @@ export default function Command() {
     setIsLoading(() => false);
   }
 
+  async function deleteQuestions() {
+    setIsLoading(() => true);
+    await LocalStorage.removeItem("question-uuids");
+    setQuestions([]);
+    setIsLoading(() => false);
+  }
+
   useEffect(() => {
     fetchQuestions();
   }, []);
@@ -87,7 +94,16 @@ export default function Command() {
   return (
     <List isLoading={isLoading} isShowingDetail>
       {questions.map((question) => (
-        <List.Item key={question.uuid} title={question.question} detail={<QuestionDetail question={question} />} />
+        <List.Item
+          key={question.uuid}
+          title={question.question}
+          detail={<QuestionDetail question={question} />}
+          actions={
+            <ActionPanel>
+              <Action icon={Icon.Trash} title="Clear Question History" onAction={() => deleteQuestions()} />
+            </ActionPanel>
+          }
+        />
       ))}
       {questions.length === 0 && (
         <List.EmptyView
