@@ -83,9 +83,9 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Ask }>
       return data.state === "complete";
     } catch (error) {
       if (!(error instanceof Error) || (error instanceof Error && error.name !== "AbortError")) {
-         setIsLoading(false);
-         setError(`Error fetching answer: ${error instanceof Error ? error.message : String(error)}`);
-       }
+        setIsLoading(false);
+        setError(`Error fetching answer: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
   }
 
