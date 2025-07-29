@@ -32,11 +32,14 @@ function QuestionDetail({ question }: { question: { uuid: string; question: stri
         } else {
           setAnswer({ answer: "Still processing...", references: [] });
         }
+        setIsLoading(false);
       })
-      .catch(() => {
-        setAnswer({ answer: "Error fetching answer", references: [] });
-      })
-      .finally(() => setIsLoading(false));
+      .catch((error) => {
+        if (!(error instanceof Error) || (error instanceof Error && error.name !== "AbortError")) {
+          setAnswer({ answer: "Error fetching answer", references: [] });
+          setIsLoading(false);
+        }
+      });
     return () => {
       if (controller.current) {
         controller.current.abort();
